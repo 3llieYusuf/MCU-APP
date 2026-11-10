@@ -85,6 +85,7 @@ const Q=[
 ["t","Anything else the development team should know about your expectations?"]];
 const cheer=["Nice one! 🙌","Love it! 💛","Great pick ✨","Noted! 📝","You’re on fire 🔥","Thank you! 🙏","Brilliant! 🌟"];
 const ENDPOINT="https://script.google.com/macros/s/AKfycbzc_Rjlcpglu1n7lXjYD4moMLMi0kO9gwVP99JyTzemW92ZdeGKDJXlBI3DMINhh-USaw/exec";
+let NAME="",CAMPUS="";
 const $=s=>document.querySelector(s),N=Q.length;let i=-1,A={},O={},tm;
 const sec=k=>{let c=0;for(let j=0;j<S.length;j++){c+=S[j][4];if(k<c)return j}return S.length-1};
 const first=k=>{let c=0;for(let j=0;j<sec(k);j++)c+=S[j][4];return c===k};
@@ -94,9 +95,9 @@ function go(n,d){d=d||(n>i?1:-1);if(n>=0&&n<N&&Q[n][0]==="k"&&!opts(n).length){n
 function draw(d){
  const c=$('#card'),r=document.documentElement;c.className='card '+(d>0?'in-r':'in-l');
  $('#bar').style.width=Math.max(0,Math.min(100,(i+1)/N*100))+'%';
- if(i<0){r.style.setProperty('--h',260);c.innerHTML=`<div class="big">🕊️</div><h1>MUST CU App Survey</h1><p>We’re dreaming up a mobile app for our fellowship, and <b>you</b> get to shape it. No right or wrong answers, just honest thoughts and wild ideas.</p><p class="mut">⏱ About 8 minutes · 34 quick questions · swipe or tap to move</p><div class="nav"><span></span><button class="b" id="nx">Let’s begin →</button></div>`;$('#nx').onclick=()=>go(0);$('#hint').textContent="";return}
+ if(i<0){r.style.setProperty('--h',260);c.innerHTML=`<div class="big">🕊️</div><h1>MUST CU App Survey</h1><p>We’re dreaming up a mobile app for our fellowship, and <b>you</b> get to shape it. No right or wrong answers, just honest thoughts and wild ideas.</p><p class="mut">⏱ About 8 minutes · 34 quick questions · swipe or tap to move</p><p style="margin:18px 0 0"><b>First, who are we talking to? 😊</b></p><input type="text" id="nm" placeholder="Your full name" autocomplete="name" value="${NAME}"><p style="margin:16px 0 0"><b>Which campus are you from? 🏫</b></p><div class="opts" id="cp2" style="margin-top:10px">${["Town campus","Kihumuro campus"].map((c,n)=>`<button class="o ${CAMPUS===c?"on":""}" style="--n:${n}" data-c="${c}"><i>✓</i><span>${c}</span></button>`).join("")}</div><div class="nav"><span></span><button class="b" id="nx">Let’s begin →</button></div>`;$('#nx').onclick=()=>{NAME=$('#nm').value.trim();if(!NAME){toast('Please tell us your name first 🙂');$('#nm').focus();return}if(!CAMPUS){toast('Please pick your campus 🙂');return}go(0)};document.querySelectorAll('#cp2 .o').forEach(b=>b.onclick=()=>{CAMPUS=b.dataset.c;document.querySelectorAll('#cp2 .o').forEach(x=>x.classList.toggle('on',x===b))});$('#nm').onkeydown=e=>{if(e.key==='Enter')$('#nx').click()};$('#hint').textContent="";return}
  if(i>=N){r.style.setProperty('--h',140);c.innerHTML=`<div class="big">🎉</div><h1>Thank you!</h1><p>Your ideas and expectations will help shape an app that members genuinely want to use.</p><div class="nav"><button class="b g" id="pv">← Review</button><button class="b" id="cp">Copy my answers</button></div><p class="mut" id="sm"></p><p class="mut" id="cpm"></p>`;
-  $('#pv').onclick=()=>go(N-1);$('#cp').onclick=async()=>{const t=Q.map((q,k)=>{const a=A[k];return (k+1)+". "+q[1]+"\n   → "+(Array.isArray(a)?a.join(", "):a||"(skipped)")+(O[k]?" ["+O[k]+"]":"")}).join("\n");try{await navigator.clipboard.writeText(t);$('#cpm').textContent="Copied! ✅"}catch(e){$('#cpm').textContent="Couldn’t copy on this device."}};
+  $('#pv').onclick=()=>go(N-1);$('#cp').onclick=async()=>{const t="Name: "+NAME+"\nCampus: "+CAMPUS+"\n\n"+Q.map((q,k)=>{const a=A[k];return (k+1)+". "+q[1]+"\n   → "+(Array.isArray(a)?a.join(", "):a||"(skipped)")+(O[k]?" ["+O[k]+"]":"")}).join("\n");try{await navigator.clipboard.writeText(t);$('#cpm').textContent="Copied! ✅"}catch(e){$('#cpm').textContent="Couldn’t copy on this device."}};
   confetti();send();$('#hint').textContent="";return}
  const s=sec(i),m=S[s],q=Q[i],t=q[0];r.style.setProperty('--h',m[2]);
  let body="";
@@ -118,7 +119,7 @@ async function send(){
  if(ENDPOINT.indexOf("PASTE")===0){m.textContent="Preview mode: no form connected yet.";return}
  m.textContent="Sending your answers… ⏳";
  const a=Q.map((q,k)=>{let v=A[k];if(Array.isArray(v))v=v.map(x=>x.startsWith("Other")?(O[k]||"Other"):x);else if(v&&v.startsWith("Other"))v=O[k]||"Other";return v||""});
- try{await fetch(ENDPOINT,{method:"POST",mode:"no-cors",headers:{"Content-Type":"text/plain"},body:JSON.stringify({a:a})});sent=true;m.textContent="Your answers are in. Thank you! ✅";const p=$('#pv');if(p)p.remove()}
+ try{await fetch(ENDPOINT,{method:"POST",mode:"no-cors",headers:{"Content-Type":"text/plain"},body:JSON.stringify({a:a,name:NAME,campus:CAMPUS})});sent=true;m.textContent="Your answers are in. Thank you! ✅";const p=$('#pv');if(p)p.remove()}
  catch(e){m.innerHTML='Couldn’t send. Check your internet. <button class="b" id="rt">Try again</button>';$('#rt').onclick=send}
 }
 function confetti(){const E=["🎉","✨","💛","🕊️","🙌","⭐"];for(let k=0;k<36;k++){const e=document.createElement('span');e.className='cf';e.textContent=E[k%E.length];e.style.left=Math.random()*100+'vw';e.style.animationDuration=2.2+Math.random()*2.2+'s';e.style.animationDelay=Math.random()*.8+'s';document.body.appendChild(e);setTimeout(()=>e.remove(),5500)}}
